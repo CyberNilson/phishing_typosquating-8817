@@ -1,95 +1,103 @@
-# 🛡️ Incidente: Phishing con dominio typosquatting – Caso 8817
+# phishing_typosquatting-8817
+# 🛡️ Incident Report: Phishing via Typosquatting Domain – Case 8817
 
-**ID del Caso:** 8817  
-**Fecha:** 2025‑06‑10  
-**Origen del ejercicio:** TryHackMe – Simulación SOC  
-**Clasificación:** Medium – Phishing (Typosquatting)
-
----
-
-## 🔎 Resumen
-
-Se identificó una alerta de phishing asociada a un correo enviado desde un dominio que intenta suplantar la marca Microsoft. El mensaje dirigido al usuario `c.allen@thetrydaily.thm` contenía un enlace a un dominio falso (`m1crosoftsupport.co`). El usuario accedió al enlace, y a diferencia de otros casos, el firewall **no bloqueó** la conexión, lo que motivó la **escalación del incidente** para análisis y contención.
+**Case ID:** 8817
+**Date:** June 10, 2025
+**Exercise Source:** LetsDefend – SOC Simulation
+**Severity:** Medium – Phishing (Typosquatting)
 
 ---
 
-## 🧪 Análisis técnico
+## 🔎 Executive Summary
 
-- **Remitente del correo:** `no-reply@m1crosoftsupport.co`
-- **Destinatario:** `c.allen@thetrydaily.thm`
-- **IP interna del usuario:** `10.20.2.25`
-- **Enlace recibido:** `https://m1crosoftsupport.co/login`
-- **IP de destino del enlace:** `45.148.10.131`
-
-### Resultados de análisis:
-- **VirusTotal:** 13 motores antivirus detectan la IP como maliciosa.
-- **AbuseIPDB:** IP `45.148.10.131` con múltiples reportes.
-- **Análisis del dominio:** Dominio usa técnica de typosquatting (`m1crosoftsupport.co`)
-- **Firewall:** Permitió la conexión.
-- **SIEM (Splunk):** Se registró el clic del usuario al enlace.
+A phishing alert was triggered by an email sent from a domain impersonating Microsoft through typosquatting. The message, directed at user `c.allen@thetrydaily.thm`, contained a link to a spoofed login page hosted on the fraudulent domain `m1crosoftsupport.co`. Unlike previous cases, the firewall **did not block** the connection — the user successfully reached the malicious site, which prompted **incident escalation** for further investigation and containment.
 
 ---
 
-## 🧾 Indicadores de Compromiso (IOCs)
+## 🧪 Technical Analysis
 
-| Tipo       | Valor                              | Observaciones                                  |
-|------------|------------------------------------|------------------------------------------------|
-| Email      | `no-reply@m1crosoftsupport.co`     | Envío desde dominio typosquatting              |
-| URL        | `https://m1crosoftsupport.co/login`| Página de login falsa                          |
-| IP         | `45.148.10.131`                    | IP maliciosa, reportada en VirusTotal y AbuseIPDB |
-| Usuario    | `c.allen@thetrydaily.thm`          | Usuario afectado                               |
-| IP interna | `10.20.2.25`                       | Dirección IP del equipo del usuario            |
+| Field | Value |
+|---|---|
+| **Sender** | `no-reply@m1crosoftsupport.co` |
+| **Recipient** | `c.allen@thetrydaily.thm` |
+| **User Internal IP** | `10.20.2.25` |
+| **Malicious Link** | `https://m1crosoftsupport.co/login` |
+| **Resolved Destination IP** | `45.148.10.131` |
 
----
+### Threat Intelligence Findings
 
-## 🗺️ Técnicas MITRE ATT&CK
-
-- **T1566.002** – Phishing: Link  
-- **T1204.001** – User Execution: Malicious Link  
-- **T1583.001** – Acquire Infrastructure: Domains
-
----
-
-## 🚨 Clasificación final
-
-✅ Confirmado Malicioso  
-⚠️ El enlace fue accedido exitosamente  
-📈 Caso escalado para análisis posterior
+- **VirusTotal:** 13 antivirus engines flagged the IP as malicious.
+- **AbuseIPDB:** IP `45.148.10.131` has multiple abuse reports on record.
+- **Domain Analysis:** Domain employs typosquatting — replacing the letter `o` with the digit `1` (`m1crosoftsupport.co`) to mimic a legitimate Microsoft support domain.
+- **Firewall:** Connection was **permitted** — no perimeter blocking occurred.
+- **SIEM (Splunk):** User click event was logged, confirming successful access to the malicious URL.
 
 ---
 
-## 🛡️ Acciones tomadas
+## 🧾 Indicators of Compromise (IOCs)
 
-- Se escaló el incidente al equipo de respuesta (Tier 2)
-- El dominio fue bloqueado en el firewall y proxy
-- Se solicitó análisis forense en el equipo de `c.allen@thetrydaily.thm`
-- Se realizó campaña de concientización puntual
-
----
-
-## 📘 Lecciones aprendidas
-
-- Los dominios con typosquatting pueden eludir filtros básicos
-- Importancia de detección temprana y análisis de logs en SIEM
-- Necesidad de ampliar controles para dominios sospechosos `.co`
+| Type | Value | Notes |
+|---|---|---|
+| Email | `no-reply@m1crosoftsupport.co` | Sent from typosquatted domain |
+| URL | `https://m1crosoftsupport.co/login` | Fake Microsoft login page |
+| IP | `45.148.10.131` | Malicious IP flagged in VirusTotal and AbuseIPDB |
+| User | `c.allen@thetrydaily.thm` | Affected user account |
+| Internal IP | `10.20.2.25` | Workstation IP of affected user |
 
 ---
 
-## 📎 Evidencias
+## 🗺️ MITRE ATT&CK Mapping
 
-### 📌 Evento SIEM (Splunk)
-- Alerta en Splunk
+| Technique ID | Name | Description |
+|---|---|---|
+| T1566.002 | Phishing: Spearphishing Link | Malicious link delivered via email |
+| T1204.001 | User Execution: Malicious Link | User clicked and accessed the phishing link |
+| T1583.001 | Acquire Infrastructure: Domains | Attacker registered a typosquatted domain to deceive the victim |
+
+---
+
+## 🚨 Final Verdict
+
+| | |
+|---|---|
+| **Classification** | ✅ Confirmed Malicious |
+| **Impact** | ⚠️ High — user successfully reached the malicious site |
+| **Escalation Required** | 📈 Yes — escalated to Tier 2 for forensic analysis |
+
+---
+
+## 🛡️ Response Actions Taken
+
+- Incident escalated to the Tier 2 response team for deeper forensic investigation.
+- Malicious domain `m1crosoftsupport.co` and IP `45.148.10.131` blocked at firewall and proxy level.
+- Forensic analysis requested on `c.allen`'s workstation to check for credential harvesting or further compromise.
+- Targeted security awareness communication issued to the affected user and broader team.
+
+---
+
+## 📘 Lessons Learned
+
+- Typosquatted domains can bypass basic email filtering rules, as the domain itself may not yet be in known blocklists at the time of delivery.
+- This case highlights a **gap in perimeter controls** — the firewall permitted access to an actively malicious host, underscoring the need for DNS filtering and reputation-based URL inspection.
+- Proactive SIEM alerting on suspicious `.co` TLDs and lookalike domains should be considered as an additional detection layer.
+- Early log analysis in Splunk was critical in confirming user interaction and accelerating the escalation decision.
+
+---
+
+## 📎 Evidence
+
+### 📌 SIEM Alert (Splunk)
+
+**Initial alert triggered in Splunk**
 ![caso2](https://github.com/user-attachments/assets/72e7a447-e7d2-479d-ad9d-27b5cec4546d)
 
-- El usuario hace click en el enlace y el firewall permite la accion
+**User click logged — firewall allowed the connection**
 ![caso2-1](https://github.com/user-attachments/assets/1936d795-a90b-4847-8332-b02529e8dca3)
 
+### 📌 VirusTotal Analysis
 
-### 📌 Análisis en VirusTotal
-
-- 13 motores detectan la IP como maliciosa
-![vuristotal](https://github.com/user-attachments/assets/30b0a22f-7fc3-4d6e-a3ea-129c3547bec7)
-
+**13 engines detected the destination IP as malicious**
+![virustotal](https://github.com/user-attachments/assets/30b0a22f-7fc3-4d6e-a3ea-129c3547bec7)
 
 ### 📌 Reporte en AbuseIPDB
 
